@@ -8,13 +8,6 @@ def make_table(dbpath):
     conn = sqlite3.connect(dbpath)
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS apistats (
-                   date INTEGER PRIMARY KEY,
-                   cases INTEGER,
-                   deaths INTEGER,
-                   recovered INTEGER,
-                   active INTEGER
-                   )
         CREATE TABLE IF NOT EXISTS CanadaStats (
             date INTEGER PRIMARY KEY,
             cases INTEGER,
@@ -84,3 +77,10 @@ def insert_data2(dbpath, data, limit = 25):
             break
     conn.commit()
     conn.close()
+
+db_path = 'final_covid_db.db'
+make_table(db_path)
+data = get_api_data()
+insert_data(db_path, data, limit = 25)
+insert_data2(db_path, data, limit = 25)
+print('done')
