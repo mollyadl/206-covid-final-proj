@@ -69,3 +69,18 @@ def insert_data(dbpath, data, limit = 25):
             break
     conn.commit()
     conn.close()
+
+def insert_data2(dbpath, data, limit = 25):
+    conn = sqlite3.connect(dbpath)
+    cursor = conn.cursor()
+    count = 0
+    for item in data:
+        cursor.execute('''
+            INSERT OR IGNORE INTO CanadaCases (date, recovered, active) VALUES (?, ?, ?)
+        ''', (item['date'], item['recovered'], item['active']))
+        if cursor.rowcount > 0:
+            count += 1
+        if count >= limit:
+            break
+    conn.commit()
+    conn.close()
