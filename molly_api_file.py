@@ -53,3 +53,19 @@ def get_api_data():
                 'active': case_num - recovered.get(date) - deaths.get(date)    
             })
     return data_list
+
+def insert_data(dbpath, data, limit = 25):
+    conn = sqlite3.connect(dbpath)
+    cursor = conn.cursor()
+    count = 0
+    for item in data:
+        cursor.execute('''
+            INSERT OR IGNORE INTO CanadaStats (date, cases, deaths) VALUES (?, ?, ?)
+        ''', (item['date'], item['cases'], item['deaths']))
+        # NEED to add this below
+        if cursor.rowcount > 0:
+            count += 1
+        if count >= limit:
+            break
+    conn.commit()
+    conn.close()
