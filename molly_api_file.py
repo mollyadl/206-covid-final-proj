@@ -32,4 +32,24 @@ def make_table(dbpath):
     conn.commit()
     conn.close()
 
-    
+def get_api_data():
+    data = requests.get(api_request)
+    json_data = data.json()
+    timeline = json_data.get('timeline')
+    cases = timeline.get('cases')
+    deaths = timeline.get('deaths')
+    recovered = timeline.get('recovered')
+    data_list = []
+    for date, case_num in cases.items():
+        #used chatgpt to fix date formatting to match the other api
+        reformatted_date = datetime.strptime(date, "%m/%d/%y").strftime("%Y%m%d")
+        reformatted_date = int(reformatted_date)
+        if reformatted_date >= START_DATE:
+            data_list.append({
+                'date': reformatted_date,
+                'cases': case_num,
+                'deaths': deaths.get(date),
+                'recovered': recovered.get(date),
+                'active': case_num - recovered.get(date) - deaths.get(date)    
+            })
+    return data_list
