@@ -6,7 +6,7 @@ import sqlite3
 import requests
 
 def create_database():
-    conn = sqlite3.connect("covid_data.db")
+    conn = sqlite3.connect("final_covid_db.db")
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS DailyStats (
@@ -35,7 +35,7 @@ def create_database():
     conn.close()
 
 def insert_data_from_api(api_url, limit=25):
-    conn = sqlite3.connect("covid_data.db")
+    conn = sqlite3.connect("final_covid_db.db")
     cursor = conn.cursor()
     response = requests.get(api_url)
     if response.status_code != 200:
@@ -74,7 +74,7 @@ def insert_data_from_api(api_url, limit=25):
     conn.close()
 
 def populate_database(api_url, total_required=100, batch_size=25):
-    conn = sqlite3.connect("covid_data.db")
+    conn = sqlite3.connect("final_covid_db.db")
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM DailyStats")
     current_count = cursor.fetchone()[0]
@@ -83,7 +83,7 @@ def populate_database(api_url, total_required=100, batch_size=25):
 
     while current_count < total_required:
         insert_data_from_api(api_url, limit=batch_size)
-        conn = sqlite3.connect("covid_data.db")
+        conn = sqlite3.connect("final_covid_db.db")
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM DailyStats")
         current_count = cursor.fetchone()[0]
