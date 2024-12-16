@@ -4,6 +4,7 @@ import sqlite3
 import requests
 from datetime import datetime
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 def find_total_death_avg(dbpath):
     conn = sqlite3.connect(dbpath)
@@ -17,13 +18,14 @@ def find_total_death_avg(dbpath):
     
     total = 0
     count = 0
-    print('RESULT LIST')
-    print(result_list)
+    #print('RESULT LIST')
+    #print(result_list)
     for item in result_list:
         #print(item)
         total += item[0]
         count += 1
     total_average = total/count
+    print(f"total avg {total_average}")
     return total_average
 
 def find_country_death_avg(dbpath):
@@ -50,26 +52,63 @@ def find_country_death_avg(dbpath):
 
     conn.close()
 
+    print(f"Canada avg: {canada_avg}")
+    print(f"US avg: {us_avg}")
+
     return {
-        'Canada Average Deaths': canada_avg,
-        'US Average Deaths': us_avg
+        'Canada Average COVID Deaths': canada_avg,
+        'US Average COVID Deaths': us_avg
     }
 
 def avg_vis(avg_dict, overall_avg):
-    avg_list = [avg_dict['Canada Average Deaths'], avg_dict['US Average Deaths'], overall_avg]
+    avg_list = [avg_dict['Canada Average COVID Deaths'], avg_dict['US Average COVID Deaths'], overall_avg]
     label_list = ['Canada', 'US', 'Combined']
     plt.bar(label_list, avg_list, color='green')
     plt.xlabel('Countries')
-    plt.ylabel('Average Deaths')
+    plt.ylabel('Average COVID Deaths')
     plt.title("Average COVID Deaths per Country")
-    #Used ChatGPT to help get plot to fully show in the image
+    #USed ChatGPT because plot was using scientific notation for y-axis
+    plt.gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+    plt.ticklabel_format(style='plain', axis='y')
+
     plt.tight_layout()
     plt.savefig('avg_deaths.png')
     plt.show()
 
+
+def death_over_time(dbpath):
+    conn = sqlite3.connect(dbpath)
+    cursor = conn.cursor()
+    cursor.execute('SELECT deaths FROM CanadaStats')
+    canada_list = cursor.fetchall()
+
+    cursor.execute('SELECT death FROM DailyStats')
+    us_list = cursor.fetchall()
+
+    cursor.execute('SELECT date from CanadaStats')
+    date_list = cursor.fetchall()
+
+    plt.plot(date_list, us_list, label='US COVID Deaths', color='blue')
+    plt.plot(date_list, canada_list, label='Canada COVID Deaths', color='green')
+    plt.xlabel('Date')
+    plt.ylabel('Total Deaths')
+    plt.title('COVID Deaths Over Time in Canada and the US')
+    plt.legend()
+    #Used ChatGPT to not use scientific notation
+    plt.gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+    plt.ticklabel_format(style='plain', axis='x')
+    plt.tight_layout()
+    plt.savefig('deaths_over_time.png')
+    plt.show()
+
+
+    pass    
+
 overall_avg = find_total_death_avg('final_covid_db.db')
 avg_dict = find_country_death_avg('final_covid_db.db')
 avg_vis(avg_dict, overall_avg)
+death_over_time('final_covid_db.db')
+
 
 
 
