@@ -73,7 +73,7 @@ def insert_data_from_api(api_url, limit=25):
     conn.commit()
     conn.close()
 
-def populate_database(api_url, total_required=100, batch_size=25):
+def populate_database(api_url, batch_size=25):
     conn = sqlite3.connect("final_covid_db.db")
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM DailyStats")
@@ -81,16 +81,16 @@ def populate_database(api_url, total_required=100, batch_size=25):
 
     conn.close()
 
-    while current_count < total_required:
-        insert_data_from_api(api_url, limit=batch_size)
-        conn = sqlite3.connect("final_covid_db.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM DailyStats")
-        current_count = cursor.fetchone()[0]
-        conn.close()
+
+    insert_data_from_api(api_url, limit=batch_size)
+    conn = sqlite3.connect("final_covid_db.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM DailyStats")
+    current_count = cursor.fetchone()[0]
+    conn.close()
 
 # Create the database and tables
 create_database()
 
 api_url = 'https://api.covidtracking.com/v1/us/daily.json'
-populate_database(api_url, total_required=100, batch_size=25)
+populate_database(api_url, batch_size=25)
