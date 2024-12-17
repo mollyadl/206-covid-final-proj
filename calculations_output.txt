@@ -1,0 +1,3 @@
+Canada average deaths: 544404.66
+US average deaths: 387894.27
+Combined average deaths (Canada + US): 994847.76

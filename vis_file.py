@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 
-def find_total_death_avg(dbpath):
+def find_total_death_avg(dbpath, txt_file):
     conn = sqlite3.connect(dbpath)
     cursor = conn.cursor()
     cursor.execute('''
@@ -25,10 +25,11 @@ def find_total_death_avg(dbpath):
         total += item[0]
         count += 1
     total_average = total/count
+
     print(f"total avg {total_average}")
     return total_average
 
-def find_country_death_avg(dbpath):
+def find_country_death_avg(dbpath, txt_file, overall_avg):
     conn = sqlite3.connect(dbpath)
     cursor = conn.cursor()
 
@@ -51,6 +52,13 @@ def find_country_death_avg(dbpath):
     us_avg = us_total/us_count
 
     conn.close()
+
+    #WRITE CANADA_AVG AND US_AVG TO TXT
+
+    with open(txt_file, "w") as file:
+        file.write(f"Canada average deaths: {canada_avg}\n")
+        file.write(f"US average deaths: {us_avg}\n")
+        file.write(f"Combined average deaths (Canada + US): {overall_avg}\n")
 
     print(f"Canada avg: {canada_avg}")
     print(f"US avg: {us_avg}")
@@ -139,8 +147,8 @@ def cases_over_time(dbpath):
 
 
 
-overall_avg = find_total_death_avg('final_covid_db.db')
-avg_dict = find_country_death_avg('final_covid_db.db')
+overall_avg = find_total_death_avg('final_covid_db.db', 'calculations_output.txt')
+avg_dict = find_country_death_avg('final_covid_db.db', 'calculations_output.txt', overall_avg)
 avg_vis(avg_dict, overall_avg)
 death_over_time('final_covid_db.db')
 cases_over_time('final_covid_db.db')
