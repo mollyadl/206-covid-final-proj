@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 
-def find_total_death_avg(dbpath, txt_file):
+def find_total_death_avg(dbpath):
     conn = sqlite3.connect(dbpath)
     cursor = conn.cursor()
     cursor.execute('''
